@@ -111,6 +111,39 @@ void UART0_sendString(char *Str)
 }
 
 
+//#########################################
+//############### UART7 ###################
+//#########################################
+void UART7_init(void)
+{
+SYSCTL_RCGCUART_R |= 0x80;                                   // ACTIVATE UART0 CLOCK
+SYSCTL_RCGCGPIO_R |= 0x00000010;                           // ACTIVATE CLOCK FOR PORT E
+while((SYSCTL_PRGPIO_R&0x00000010) == 0){};                                 
+
+UART7_CTL_R  = 0;                                           // DISBALE UART
+/* DECLARING THE BAUD RATE  */
+UART7_IBRD_R = 104;         
+UART7_FBRD_R = 11;    
+
+	
+UART7_LCRH_R = 0x0070;                                                                         
+UART7_CTL_R  = 0x0301;                                                                       
+                     
+GPIO_PORTE_AMSEL_R &= ~0X03;                  
+GPIO_PORTE_AFSEL_R |= 0X03;                      // TO ACTIVATE ALTERNATIVE FUNCTION SELECT FOR PIN0 AND PIN1
+GPIO_PORTE_PCTL_R  = (GPIO_PORTE_PCTL_R & 0xFFFFFF00)| 0X00000011;                             // CHOOSE PIN0 AND PIN1 TO BE UART0 RECEIVE AND TRANSMIT RESPECTIVELY
+GPIO_PORTE_DEN_R |= 0X03;                     // TO ENABLE PIN TO BE DIGITAL
+
+}
+
+char UART7_recieveByte(void)
+{
+  while( ((UART7_FR_R & 0x10) != 0));  
+	UART0_sendByte((char)UART7_DR_R&0xFF);
+	//return 0;
+  return (char)(UART7_DR_R&0xFF);     // RETURN FIRST 8 BITS IN UART0 DATA REGISTER
+}
+
 
 
 
