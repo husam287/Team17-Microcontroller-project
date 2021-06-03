@@ -49,6 +49,20 @@ GPIO_PORTB_AFSEL_R &= ~0xFF;
 }
 
 
+//#########################################
+//############### PORT A ##################
+//#########################################
+void PortA_Init(void){
+SYSCTL_RCGCGPIO_R |= 0x00000001; // activate Port A
+while((SYSCTL_PRGPIO_R&0x00000001) == 0){};
+GPIO_PORTA_PCTL_R |= 0xF0; // allow changes
+GPIO_PORTA_DIR_R |= 0xF0; // PA4,PA5,PA6,PA7 output
+GPIO_PORTA_DEN_R |= 0xF0; // digital I/O on PA4,PA5,PA6,PA7
+GPIO_PORTA_AMSEL_R &= ~0xF0; // disable analog
+GPIO_PORTA_AFSEL_R &= ~0xF0;  
+}
+
+
 
 
 
