@@ -34,6 +34,20 @@ void LED_Out(uint8_t x){
 		PortF_Output(0x00);
 }
 
+//#########################################
+//############### PORT B ###############
+//#########################################
+void PortB_Init(void){
+SYSCTL_RCGCGPIO_R |= 0x00000002; // activate Port B
+while((SYSCTL_PRGPIO_R&0x00000002) == 0){};
+GPIO_PORTB_PCTL_R = 0xFF; // allow changes
+GPIO_PORTB_DIR_R = 0xFF; // all out
+GPIO_PORTB_PUR_R = 0x00; // no pull-up 
+GPIO_PORTB_DEN_R = 0xFF; // digital I/O on all
+GPIO_PORTB_AMSEL_R &= ~0xFF; // disable analog
+GPIO_PORTB_AFSEL_R &= ~0xFF;
+}
+
 
 
 
