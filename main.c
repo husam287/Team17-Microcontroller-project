@@ -37,6 +37,10 @@ void LED_Out(uint8_t x){
 //#########################################
 //############### PORT B ###############
 //#########################################
+
+
+//port B will be used for displaying the units and tens digits
+//of distance on the 7-segment display
 void PortB_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000002; // activate Port B
 while((SYSCTL_PRGPIO_R&0x00000002) == 0){}; //wait for Port B to be ready
@@ -52,6 +56,9 @@ GPIO_PORTB_AFSEL_R &= ~0xFF;
 //#########################################
 //############### PORT A ##################
 //#########################################
+
+//last 4 bits of Port A will be used to display
+//the hundreds digit of distance on 7 segment display
 void PortA_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000001; // activate Port A
 while((SYSCTL_PRGPIO_R&0x00000001) == 0){}; //wait for Port A to be ready
