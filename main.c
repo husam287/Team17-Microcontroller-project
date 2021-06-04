@@ -39,13 +39,13 @@ void LED_Out(uint8_t x){
 //#########################################
 void PortB_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000002; // activate Port B
-while((SYSCTL_PRGPIO_R&0x00000002) == 0){};
+while((SYSCTL_PRGPIO_R&0x00000002) == 0){}; //wait for Port B to be ready
 GPIO_PORTB_PCTL_R = 0xFF; // allow changes
-GPIO_PORTB_DIR_R = 0xFF; // all out
-GPIO_PORTB_PUR_R = 0x00; // no pull-up 
-GPIO_PORTB_DEN_R = 0xFF; // digital I/O on all
+GPIO_PORTB_DIR_R = 0xFF; // all ports are output ports
+GPIO_PORTB_PUR_R = 0x00; // no pull-up resistor
+GPIO_PORTB_DEN_R = 0xFF; // all ports are digital
 GPIO_PORTB_AMSEL_R &= ~0xFF; // disable analog
-GPIO_PORTB_AFSEL_R &= ~0xFF;
+GPIO_PORTB_AFSEL_R &= ~0xFF; 
 }
 
 
@@ -54,7 +54,7 @@ GPIO_PORTB_AFSEL_R &= ~0xFF;
 //#########################################
 void PortA_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000001; // activate Port A
-while((SYSCTL_PRGPIO_R&0x00000001) == 0){};
+while((SYSCTL_PRGPIO_R&0x00000001) == 0){}; //wait for Port A to be ready
 GPIO_PORTA_PCTL_R |= 0xF0; // allow changes
 GPIO_PORTA_DIR_R |= 0xF0; // PA4,PA5,PA6,PA7 output
 GPIO_PORTA_DEN_R |= 0xF0; // digital I/O on PA4,PA5,PA6,PA7
