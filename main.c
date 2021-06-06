@@ -8,9 +8,9 @@
 #include <inttypes.h>
 #include <string.h>
 
-//####################################################
-//############### LED STUFF AND PORT F ###############
-//####################################################
+//#########################################
+//############### LED STUFF ###############
+//#########################################
 void PortF_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000020; // activate Port F
 while((SYSCTL_PRGPIO_R&0x00000020) == 0){};
@@ -19,7 +19,20 @@ GPIO_PORTF_DIR_R = 0x0E; // PF4,PF0 in, PF3-1 out
 GPIO_PORTF_DEN_R = 0x1F; // digital I/O on PF4-0
 }
 
+void LED_Init(){
+	PortF_Init();
+}
 
+void PortF_Output(uint32_t data){ // write PF3-PF1 outputs
+GPIO_PORTF_DATA_R = data;
+}
+
+void LED_Out(uint8_t x){
+	if(x==1)
+	PortF_Output(0x02);
+	else
+		PortF_Output(0x00);
+}
 
 //#########################################
 //############### PORT B ###############
@@ -56,6 +69,36 @@ GPIO_PORTA_AMSEL_R &= ~0xF0; // disable analog
 GPIO_PORTA_AFSEL_R &= ~0xF0;
 }
 
+
+
+//#########################################
+//############### SYSTICK #################
+//#########################################
+void SysTick_Init(void)
+{
+NVIC_ST_CTRL_R = 0; // 1) disable SysTick during setup
+NVIC_ST_RELOAD_R = 0x00FFFFFF; // 2) maximum reload value
+NVIC_ST_CURRENT_R = 0; // 3) any write to current clears it
+NVIC_ST_CTRL_R = 0x00000005; // 4) enable SysTick with core clock
+}
+
+//The delay parameter is in units of the 
+void SysTick_Wait(uint32_t delay)
+{
+NVIC_ST_RELOAD_R = delay-1; // number of counts to wait
+NVIC_ST_CURRENT_R = 0; // any value written to CURRENT clears
+while((NVIC_ST_CTRL_R&0x00010000)==0) {} // wait for count flag
+}
+
+// 10000us equals 1ms
+void wait1ms(uint32_t delay)
+{
+uint32_t i;
+for(i=0; i<delay; i++)
+{
+	SysTick_Wait(16000); // wait 1ms
+}
+}
 
 
 //#########################################
@@ -203,10 +246,27 @@ double getDistanceInM(double lat1, double lon1, double lat2, double lon2) {
 
 
 
-int main(){
+int mian() {
 
+	double totalDistance =0.0;
+	
+	// init
+	LED_Init();
+	SysTick_Init();
+	PortA_Init();
+	PortB_Init();
+	UART7_init();
+	UART0_init();
 
+	//start of the code 
+totalDistance =13;
 
+    while (1) {
+displayTotalDigit(totalDistance)
+if(totalDistance>=10){
+LED_Out(1);
+}
 
-    return 0;
+    
+    }
 }
