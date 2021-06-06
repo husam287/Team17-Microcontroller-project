@@ -246,7 +246,8 @@ double getDistanceInM(double lat1, double lon1, double lat2, double lon2) {
 
 
 
-int mian() {
+
+int main(void) {
 
 	double totalDistance =0.0;
 	
