@@ -182,6 +182,43 @@ char UART7_recieveByte(void)
 }
 
 
+//#########################################
+//############### 7 SEGMENT ###############
+//#########################################
+
+void displayDigit1andDigit2(uint8_t dig1,uint8_t dig2)
+{
+	GPIO_PORTB_DATA_R = dig1 + (dig2<<4);
+}
+void displayDigit3(uint8_t dig){
+//pa 4 5 6 7 ditit 3     ### hundreds ###
+	GPIO_PORTA_DATA_R &= 0x0F;
+	GPIO_PORTA_DATA_R |= (dig<<4);
+}
+
+void displayTotalDigit(uint32_t digit){
+	uint8_t digit1;
+	uint8_t digit2;
+	uint8_t digit3;
+if (digit < 1000){
+// unit digit
+digit1 = digit % 10;
+digit /= 10;
+//displayDigit1(digit1);
+
+ // tens digit
+digit2 = digit % 10;
+digit /= 10;
+//displayDigit2(digit2);
+
+displayDigit1andDigit2(digit1,digit2);
+
+ // hunds digit
+digit3 = digit;
+displayDigit3(digit3);
+}
+}
+
 
 //#########################################
 //############### DISTANCE ################
