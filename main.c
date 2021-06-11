@@ -8,9 +8,9 @@
 #include <inttypes.h>
 #include <string.h>
 
-//####################################################
-//############### LED STUFF AND PORT F ###############
-//####################################################
+//#########################################
+//############### LED STUFF ###############
+//#########################################
 void PortF_Init(void){
 SYSCTL_RCGCGPIO_R |= 0x00000020; // activate Port F
 while((SYSCTL_PRGPIO_R&0x00000020) == 0){};
@@ -69,6 +69,36 @@ GPIO_PORTA_AMSEL_R &= ~0xF0; // disable analog
 GPIO_PORTA_AFSEL_R &= ~0xF0;
 }
 
+
+
+//#########################################
+//############### SYSTICK #################
+//#########################################
+void SysTick_Init(void)
+{
+NVIC_ST_CTRL_R = 0; // 1) disable SysTick during setup
+NVIC_ST_RELOAD_R = 0x00FFFFFF; // 2) maximum reload value
+NVIC_ST_CURRENT_R = 0; // 3) any write to current clears it
+NVIC_ST_CTRL_R = 0x00000005; // 4) enable SysTick with core clock
+}
+
+//The delay parameter is in units of the 
+void SysTick_Wait(uint32_t delay)
+{
+NVIC_ST_RELOAD_R = delay-1; // number of counts to wait
+NVIC_ST_CURRENT_R = 0; // any value written to CURRENT clears
+while((NVIC_ST_CTRL_R&0x00010000)==0) {} // wait for count flag
+}
+
+// 10000us equals 1ms
+void wait1ms(uint32_t delay)
+{
+uint32_t i;
+for(i=0; i<delay; i++)
+{
+	SysTick_Wait(16000); // wait 1ms
+}
+}
 
 
 //#########################################
@@ -189,6 +219,92 @@ displayDigit3(digit3);
 }
 }
 
+//#########################################
+//############### GPS #####################
+//#########################################
+
+//$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45
+void readGPSModule(){
+//	uint8_t in;
+//	*lat = 123.4;
+//	*lon = 34.56;
+	//in = UART7_Read();
+		
+    char c0,GPSValues[100],parseValue[12][20],*token;
+    double latitude=0.0,longitude=0.0,seconds=0.0,minutes=0.0;
+    const char comma[2] = ",";
+    int index=0,degrees;
+
+
+    
+    c0=UART7_Read();
+    //UART0_sendByte(c0);
+    if(c0=='$'){
+        char c1=(char)UART7_Read();
+        if(c1=='G'){
+            char c2=(char)UART7_Read();
+            if(c2=='P'){
+                char c3=(char)UART7_Read();
+                if(c3=='R'){
+                    char c4=(char)UART7_Read();
+                    if(c4=='M'){
+                        char c5=(char)UART7_Read();
+                        if(c5=='C'){
+                            char c6=(char)UART7_Read();
+                            if(c6==','){    
+                                char c7=(char)UART7_Read();
+
+                                //reading
+                                while(c7!='*'){
+                                    GPSValues[index]=c7;
+                                    c7=(char)UART7_Read();
+								    // UART0_sendByte(c7);
+                                    index++;}
+
+
+                                
+                                index=0;
+                                token = strtok(GPSValues, comma);
+                                while( token != NULL ) {
+                                    strcpy(parseValue[index], token);
+                                    token = strtok(NULL, comma);
+                                    index++;}
+
+
+                                // get latitude and longitude
+                                if(strcmp(parseValue[1],"A")==0){
+                                    latitude=atof(parseValue[2]);
+                                    longitude=atof(parseValue[4]);
+
+
+                                    //latitude calculations
+                                    degrees=latitude/100;
+                                    minutes=latitude-(double)(degrees*100);
+                                    seconds=minutes/60.00;
+                                    lat=degrees+seconds;
+																	
+                                    sprintf(s_lat,"%f",lat);
+									UART0_Write('L');
+	                                UART0_sendString(s_lat);
+                                     
+																	  
+																	
+
+                                    //longitude calculations
+                                    degrees=longitude/100;
+                                    minutes=longitude-(double)(degrees*100);
+                                    seconds=minutes/60.00;
+                                    lon=degrees+seconds;
+                                    sprintf(s_long,"%f", lon);
+									UART0_Write('G');
+									UART0_sendString(s_long);
+																		
+																	
+																		
+
+ 
+                        }}}}}}}}
+}
 
 //#########################################
 //############### DISTANCE ################
@@ -216,10 +332,28 @@ double getDistanceInM(double lat1, double lon1, double lat2, double lon2) {
 
 
 
-int main(){
 
+int main(void) {
 
+	double totalDistance =0.0;
+	
+	// init
+	LED_Init();
+	SysTick_Init();
+	PortA_Init();
+	PortB_Init();
+	UART7_init();
+	UART0_init();
 
+	//start of the code 
+totalDistance =13;
 
-    return 0;
+    while (1) {
+displayTotalDigit(totalDistance)
+if(totalDistance>=10){
+LED_Out(1);
+}
+
+    
+    }
 }
