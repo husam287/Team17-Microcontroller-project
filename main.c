@@ -219,6 +219,92 @@ displayDigit3(digit3);
 }
 }
 
+//#########################################
+//############### GPS #####################
+//#########################################
+
+//$GPRMC,092751.000,A,5321.6802,N,00630.3371,W,0.06,31.66,280511,,,A*45
+void readGPSModule(){
+//	uint8_t in;
+//	*lat = 123.4;
+//	*lon = 34.56;
+	//in = UART7_Read();
+		
+    char c0,GPSValues[100],parseValue[12][20],*token;
+    double latitude=0.0,longitude=0.0,seconds=0.0,minutes=0.0;
+    const char comma[2] = ",";
+    int index=0,degrees;
+
+
+    
+    c0=UART7_Read();
+    //UART0_sendByte(c0);
+    if(c0=='$'){
+        char c1=(char)UART7_Read();
+        if(c1=='G'){
+            char c2=(char)UART7_Read();
+            if(c2=='P'){
+                char c3=(char)UART7_Read();
+                if(c3=='R'){
+                    char c4=(char)UART7_Read();
+                    if(c4=='M'){
+                        char c5=(char)UART7_Read();
+                        if(c5=='C'){
+                            char c6=(char)UART7_Read();
+                            if(c6==','){    
+                                char c7=(char)UART7_Read();
+
+                                //reading
+                                while(c7!='*'){
+                                    GPSValues[index]=c7;
+                                    c7=(char)UART7_Read();
+								    // UART0_sendByte(c7);
+                                    index++;}
+
+
+                                
+                                index=0;
+                                token = strtok(GPSValues, comma);
+                                while( token != NULL ) {
+                                    strcpy(parseValue[index], token);
+                                    token = strtok(NULL, comma);
+                                    index++;}
+
+
+                                // get latitude and longitude
+                                if(strcmp(parseValue[1],"A")==0){
+                                    latitude=atof(parseValue[2]);
+                                    longitude=atof(parseValue[4]);
+
+
+                                    //latitude calculations
+                                    degrees=latitude/100;
+                                    minutes=latitude-(double)(degrees*100);
+                                    seconds=minutes/60.00;
+                                    lat=degrees+seconds;
+																	
+                                    sprintf(s_lat,"%f",lat);
+									UART0_Write('L');
+	                                UART0_sendString(s_lat);
+                                     
+																	  
+																	
+
+                                    //longitude calculations
+                                    degrees=longitude/100;
+                                    minutes=longitude-(double)(degrees*100);
+                                    seconds=minutes/60.00;
+                                    lon=degrees+seconds;
+                                    sprintf(s_long,"%f", lon);
+									UART0_Write('G');
+									UART0_sendString(s_long);
+																		
+																	
+																		
+
+ 
+                        }}}}}}}}
+}
 
 //#########################################
 //############### DISTANCE ################
