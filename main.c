@@ -131,55 +131,6 @@ void wait1ms(uint32_t delay)
     }
 }
 
-//#########################################
-//############### UART0 ###################
-//#########################################
-void UART0_init(void)
-{
-    SYSCTL_RCGCUART_R |= 1;          // ACTIVATE UART0 CLOCK
-    SYSCTL_RCGCGPIO_R |= 0x00000001; // ACTIVATE CLOCK FOR PORT A
-    while ((SYSCTL_PRGPIO_R & 0x00000001) == 0)
-    {
-    };
-
-    UART0_CTL_R = 0; // DISBALE UART
-    /* DECLARING THE BAUD RATE  */
-    UART0_IBRD_R = 104;
-    UART0_FBRD_R = 11;
-
-    UART0_LCRH_R = 0x0070;
-    UART0_CTL_R = 0x0301;
-
-    GPIO_PORTA_AMSEL_R &= ~0X03;
-    GPIO_PORTA_AFSEL_R |= 0X03;                                        // TO ACTIVATE ALTERNATIVE FUNCTION SELECT FOR PIN0 AND PIN1
-    GPIO_PORTA_PCTL_R = (GPIO_PORTA_PCTL_R & 0xFFFFFF00) | 0X00000011; // CHOOSE PIN0 AND PIN1 TO BE UART0 RECEIVE AND TRANSMIT RESPECTIVELY
-    GPIO_PORTA_DEN_R |= 0X03;                                          // TO ENABLE PIN TO BE DIGITAL
-}
-
-uint8_t UART0_recieveByte(void)
-{
-    while (((UART0_FR_R & 0x10) != 0))
-        ;
-    return (uint8_t)UART0_DR_R; // RETURN FIRST 8 BITS IN UART0 DATA REGISTER
-}
-
-//send data to coputer
-void UART0_sendByte(char data)
-{
-    while (((UART0_FR_R & 0x20) != 0))
-        ;
-    UART0_DR_R = data;
-}
-
-void UART0_sendString(char *Str)
-{
-    uint8_t i = 0;
-    while (Str[i] != '\0')
-    {
-        UART0_sendByte(Str[i]);
-        i++;
-    }
-}
 
 //#########################################
 //############### 7 SEGMENT ###############
