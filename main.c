@@ -8,6 +8,27 @@
 #include <inttypes.h>
 #include <string.h>
 
+
+
+#include "UART.h"
+#include "stdint.h"
+
+
+#define CPAC (*((volatile uint32_t *)0xE000ED88))
+void SystemInit() {
+    CPAC |= 0X00F00000;
+}
+
+char s_lat[50];
+char s_long[50];
+double lat = 0, lon = 0;
+double totalDistance = 0.0;
+double lat1, lat2, long1, long2;
+
+
+
+
+
 //#########################################
 //############### LED STUFF ###############
 //#########################################
@@ -330,6 +351,19 @@ int main(void)
     UART0_Init();
     UART7_Init();
     LED_Out(0);
+
+    /*
+    	//start of the code
+    totalDistance =13;
+
+        while (1) {
+    displayTotalDigit(totalDistance)
+    if(totalDistance>=10){
+    LED_Out(1);
+    }
+    */
+
+
     while (1)
     {
 
@@ -348,5 +382,11 @@ int main(void)
         //uint8_t in;
         //in = UART7_Read();
         //UART0_Write(in);
+
+        // At distance 100 m
+        if (totalDistance >= 100) {
+            LED_Out(1); //turn on led
+        }
+
     }
 }
